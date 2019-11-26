@@ -21,51 +21,39 @@
 </script>
 
 <FirebaseApp {firebase}>
-    <h1>Рыбный стафф</h1>
-
-    <User let:user let:auth>
-
-        <p>Howdy, {user.uid}</p>
-        <button on:click={() => auth.signOut()}>Выйти</button>
-    
-        <div slot="signed-out">
-          <button on:click={() => auth.signInAnonymously()}>Админ</button>
-        </div>
-    
-        <Doc path={`categories/ikra`} let:data={ikra} let:ref={ikraRef} log>
-    
-          <h2>{ikra.title}</h2>
-    
-          <span slot="loading">Loading ikra...</span>
-          <span slot="fallback">
-            <p>Demo ikra not created yet...</p>
-    
-            <button on:click={() => ikraRef.set({ title: 'I like Svelte' })}>
-              Create it Now
-            </button>
-          </span>
-    
-          <!-- 4. 💬 Get all the comments in its subcollection -->
-          <Collection
-            path={ikraRef.collection('comments')}
-            let:data={comments}
-            let:ref={commentsRef}
-            log>
-            
-            {#each comments as comment}
-              <p>{comment.text}</p>
-              <button on:click={() => comment.ref.delete()}>Delete</button>
+    <User persist={sessionStorage} let:user={user} let:auth={auth} on:user>
+        <h1>Рыбный стафф</h1>
+        <Collection
+                path={'catalog'}
+                log
+                let:data={categories}
+                let:ref={categoriesRef}
+        >
+            {#each categories as category}
+                <Collection
+                    path={`catalog/${category.id}/products`}
+                    log
+                    let:data={products}
+                    let:ref={productsRef}
+                >
+                    <div>
+                        <h2>{category.title}</h2>
+                        <div>{category.id}</div>
+                    </div>
+                    {#each products as product}
+                        <h3>{product.title}</h3>
+                        <div>{product.id}</div>
+                    {/each}
+                </Collection>
             {/each}
-    
-            <hr />
-    
-            <button on:click={() => commentsRef.add({ text: 'Cool!' })}>
-              Add Comment
-            </button>
-    
-            <span slot="loading">Loading comments...</span>
-    
-          </Collection>
-        </Doc>
-     </User>
+        </Collection>
+        <hr/>
+
+        {user.uid}
+        <button on:click={() => auth.signOut()}>Выйти</button>
+
+        <div slot="signed-out">
+            <button on:click={() => auth.signInAnonymously()}>Админ</button>
+        </div>
+    </User>
 </FirebaseApp>
