@@ -15,13 +15,30 @@
         messagingSenderId: "1065320094276",
         appId: "1:1065320094276:web:6f32c78bf0bfa08d67fa11"
     }
+    
+    let currentUser
+    
+    let changeCurrentUser = (user) => {
+	    if (user) {
+    	    currentUser = 'is admin';
+        }
+	    else {
+	        currentUser = 'not loged'
+        }
+        logger(currentUser)
+    }
+    
+    const logger = (currentUser) => {
+	    console.log(currentUser)
+    }
 
     firebase.initializeApp(firebaseConfig)
-    let user = 'user';
 </script>
 
 <FirebaseApp {firebase}>
-    <User persist={sessionStorage} let:user={user} let:auth={auth} on:user>
+    <User persist={sessionStorage} let:user={user} let:auth={auth} >
+        {changeCurrentUser(true)}
+        USER is: {currentUser}
         <h1>Рыбный стафф</h1>
         <Collection
                 path={'catalog'}
@@ -30,15 +47,16 @@
                 let:ref={categoriesRef}
         >
             {#each categories as category}
+                [Add category]
                 <Collection
-                    path={`catalog/${category.id}/products`}
-                    log
-                    let:data={products}
-                    let:ref={productsRef}
+                        path={`catalog/${category.id}/products`}
+                        log
+                        let:data={products}
+                        let:ref={productsRef}
                 >
                     <div>
                         <h2>{category.title}</h2>
-                        <div>{category.id}</div>
+                        <div>{category.id} - edit</div>
                     </div>
                     {#each products as product}
                         <h3>{product.title}</h3>
@@ -48,11 +66,38 @@
             {/each}
         </Collection>
         <hr/>
-
-        {user.uid}
         <button on:click={() => auth.signOut()}>Выйти</button>
 
         <div slot="signed-out">
+            {changeCurrentUser(false)}
+            USER is: {currentUser}
+            <h1>Рыбный стафф</h1>
+            <Collection
+                    path={'catalog'}
+                    log
+                    let:data={categories}
+                    let:ref={categoriesRef}
+            >
+                {#each categories as category}
+                    [Add category]
+                    <Collection
+                            path={`catalog/${category.id}/products`}
+                            log
+                            let:data={products}
+                            let:ref={productsRef}
+                    >
+                        <div>
+                            <h2>{category.title}</h2>
+                            <div>{category.id} - edit</div>
+                        </div>
+                        {#each products as product}
+                            <h3>{product.title}</h3>
+                            <div>{product.id}</div>
+                        {/each}
+                    </Collection>
+                {/each}
+            </Collection>
+            <hr/>
             <button on:click={() => auth.signInAnonymously()}>Админ</button>
         </div>
     </User>
