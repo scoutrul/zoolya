@@ -36,7 +36,9 @@
 </script>
 
 <FirebaseApp {firebase}>
-    <User persist={sessionStorage} let:user={user} let:auth={auth} >
+    <User persist={sessionStorage} let:user={user} let:auth={auth}>
+        <div slot="loading">Loading</div>
+        
         {changeCurrentUser(true)}
         USER is: {currentUser}
         <h1>Рыбный стафф</h1>
@@ -79,7 +81,6 @@
                     let:ref={categoriesRef}
             >
                 {#each categories as category}
-                    [Add category]
                     <Collection
                             path={`catalog/${category.id}/products`}
                             log
